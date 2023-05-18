@@ -1,30 +1,31 @@
 import { ObjectType, Field, Int } from '@nestjs/graphql';
-import { PrimaryGeneratedColumn, Column } from 'typeorm';
+import { PrimaryGeneratedColumn, Column, Entity } from 'typeorm';
 
 @ObjectType()
+@Entity()
 export class User {
 
-  @Field(() => Int, { description: 'Example ID' })
+  @Field(() => Int, { name: 'id',description: 'id' })
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Field(() => String, { description: 'Name' })
+  @Field(() => String, {name: 'firstName', description: 'Name' })
   @Column()
   firstName: string;
 
-  @Field(() => String, { description: 'Last name' })
+  @Field(() => String, {name: 'lastName', description: 'Last name' })
   @Column()
   lastName: string;
 
-  @Field(() => String, { description: 'Email' })
+  @Field(() => String, { name: 'email', description: 'Email' })
   @Column()
   email: string;
 
-  @Field(() => String, { description: 'Password' })
+  @Field(() => String, { name: 'password', description: 'Password' })
   @Column()
   password: string;
 
-  @Field(() => Boolean, { description: 'Is active' })
+  @Field(() => Boolean, { name: 'isActive', description: 'is Active' })
   @Column()
   isActive: boolean;
 }
