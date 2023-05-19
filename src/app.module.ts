@@ -6,6 +6,8 @@ import { UsersModule } from './users/users.module';
 import { ConfigModule } from '@nestjs/config';
 import { ApolloDriverConfig, ApolloDriver } from '@nestjs/apollo';
 import { GraphQLModule } from '@nestjs/graphql';
+import { AuthModule } from './auth/auth.module';
+
 
 
 
@@ -27,6 +29,7 @@ import { GraphQLModule } from '@nestjs/graphql';
       autoSchemaFile: true,
     }),
     UsersModule,
+    AuthModule,
   ],
 })
 export class AppModule {}

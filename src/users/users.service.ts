@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { CreateUserInput } from './dto/create-user.input';
 import { UpdateUserInput } from './dto/update-user.input';
+import { hash } from 'bcrypt';
 
 @Injectable()
 export class UserService {
@@ -12,7 +13,7 @@ export class UserService {
     private readonly userRepository: Repository<User>,
   ) {}
 
-  async findByEmail(email: string): Promise<User | undefined> {
+  async findByEmail(email: string): Promise<User> {
     return await this.userRepository.findOne({ where: { email } });
   }
   
@@ -34,6 +35,8 @@ export class UserService {
   async create(createUserInput: CreateUserInput): Promise<User>{
     
     const user = this.userRepository.create(createUserInput);
+    const strHash = await hash(user.password, 10);
+    user.password = strHash;
     const NewUser = await this.userRepository.save(user);
 
     return NewUser;
