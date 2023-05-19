@@ -32,10 +32,11 @@ export class UserService {
   }
 
   async create(createUserInput: CreateUserInput): Promise<User>{
+    
     const user = this.userRepository.create(createUserInput);
-    this.userRepository.save(user);
+    const NewUser = await this.userRepository.save(user);
 
-    return user;
+    return NewUser;
   }
 
   async update(id: number, updateUserInput: UpdateUserInput): Promise<User> {
@@ -47,8 +48,22 @@ export class UserService {
     }
 
     Object.assign(user, updateUserInput);
-    this.userRepository.save(user);
+    await this.userRepository.save(user);
+
     return user;
+  }
+
+  async remove(id: number): Promise<string> {
+
+    const user = await this.userRepository.findOne({ where: { id } });
+
+    if (!user) {
+      throw new Error(`User with ID ${id} not found`);
+    }
+
+    await this.userRepository.remove(user);
+    
+    return 'User with ID'+ id + ' was deleted';
   }
 
 }
