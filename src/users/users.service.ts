@@ -1,72 +1,106 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { User } from './entities/user.entity';
 import { CreateUserInput } from './dto/create-user.input';
 import { UpdateUserInput } from './dto/update-user.input';
-import { hash } from 'bcrypt';
+import { hash, verify } from 'argon2';
+import { PrismaService } from 'src/prisma.service';
+import { user } from '@prisma/client';
 
 @Injectable()
 export class UserService {
   constructor(
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
+    private prisma: PrismaService
   ) {}
 
-  async findByEmail(email: string): Promise<User> {
-    return await this.userRepository.findOne({ where: { email } });
-  }
   
-  async findAll(): Promise<User[]> {
-    return await this.userRepository.find();
+  async findAll(): Promise<user[]> {
+    return await this.prisma.user.findMany();
   }
 
-  async findOne(id: number): Promise<User>{
+  async findById(id: number) {
 
-    const user = this.userRepository.findOne({ where: {id } });
-
-    if (!user) {
-      throw new Error(`User with ID ${id} not found`);
-    }
-
-    return user;
-  }
-
-  async create(createUserInput: CreateUserInput): Promise<User>{
+    const userFound = await this.prisma.user.findUnique({
+      where: { id },
+    });
     
-    const user = this.userRepository.create(createUserInput);
-    const strHash = await hash(user.password, 10);
-    user.password = strHash;
-    const NewUser = await this.userRepository.save(user);
-
-    return NewUser;
-  }
-
-  async update(id: number, updateUserInput: UpdateUserInput): Promise<User> {
-
-    const user = await this.userRepository.findOne({ where: { id } });
-
-    if (!user) {
-      throw new Error(`User with ID ${id} not found`);
+    if(!userFound){
+      throw new Error(`User with id ${id} not found`);
     }
 
-    Object.assign(user, updateUserInput);
-    await this.userRepository.save(user);
-
-    return user;
+    return userFound;
   }
 
-  async remove(id: number): Promise<string> {
+  async findByEmail(email: string): Promise<user> {
+    return await this.prisma.user.findFirst({
+       where: { email },
+      });
+  }
 
-    const user = await this.userRepository.findOne({ where: { id } });
+  async create(userInput: CreateUserInput): Promise<user> {
+    const { id, firstName, lastName, email, password, isActive } = userInput;
 
-    if (!user) {
-      throw new Error(`User with ID ${id} not found`);
-    }
+    const hashpassword = await hash(password);
 
-    await this.userRepository.remove(user);
+    return this.prisma.user.create({
+      data: {
+      id,
+      firstName,
+      lastName,
+      email,
+      password: hashpassword,
+      isActive,
+    },
+    });
     
-    return 'User with ID'+ id + ' was deleted';
+  }
+
+
+  async validateUser(email: string, password: string): Promise<user>
+  {
+    const userFound = await this.findByEmail(email);
+
+    if(!userFound){
+      throw new Error(`User with email ${email} not found`);
+    }
+
+
+    const isPasswordValid = await verify(userFound.password, password);
+    
+    if(!isPasswordValid){
+      throw new Error(`Incorrect password`);
+    }
+  
+    return userFound;
+  }
+
+   
+
+  
+  async update(id: number, updateUser: UpdateUserInput): Promise<user> {
+
+    const userFound = await this.findById(id);
+
+    if (!userFound) {
+      throw new Error(`User with ID ${userFound} not found`);
+    }
+
+    return await this.prisma.user.update({
+      where: { id },
+      data: updateUser,
+    });      
+  }
+
+
+  async remove(id: number) {
+
+    const userFound = await this.findById(id);
+
+    if (!userFound) {
+      throw new Error(`User with ID ${id} not found`);
+    }
+
+    return await this.prisma.user.delete({
+      where: { id },
+    });
   }
 
 }

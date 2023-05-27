@@ -1,0 +1,25 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model product {
+  id                 Int    @id(map: "PK_bebc9158e480b949565b4dc7a82") @default(autoincrement())
+  productName        String @db.VarChar
+  productDescription String @db.VarChar
+  productPrice       Int
+  productStock       Int
+}
+
+model user {
+  id        Int     @id(map: "PK_cace4a159ff9f2512dd42373760") @default(autoincrement())
+  firstName String  @db.VarChar
+  lastName  String  @db.VarChar
+  email     String  @db.VarChar
+  password  String  @db.VarChar
+  isActive  Boolean
+}
