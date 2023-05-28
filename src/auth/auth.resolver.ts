@@ -9,4 +9,9 @@ import { User } from 'src/users/entities/user.entity';
 export class AuthResolver {
   constructor(private readonly authService: AuthService) {}
 
+  @Query(() => String, { name: 'Login' })
+  Login(@Args('LoginAuthInput') loginAuthInput: LoginAuthInput) {
+    return this.authService.ValidateLogin(loginAuthInput);
+  }
+
 }

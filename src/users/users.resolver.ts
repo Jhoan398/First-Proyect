@@ -13,12 +13,6 @@ export class UsersResolver {
     return this.userService.findAll();
   }
 
-  @Query(() => User, { name: 'Login' })
-  Login(@Args('email', { type: () => String }) email: string, @Args('password', { type: () => String }) password: string) {
-    return this.userService.validateUser(email, password);
-  }
-
-
   @Query(() => User, { name: 'GetUser', description: 'Get the user by id'})
   findOne(@Args('id', { type: () => Int }) id: number) {
       return this.userService.findById(id)

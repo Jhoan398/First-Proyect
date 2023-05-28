@@ -1,13 +1,29 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
-import { User } from 'src/users/entities/user.entity';
+import { Injectable } from '@nestjs/common';
 import { UserService } from 'src/users/users.service';
-import { compare } from 'bcrypt';
+
 import { LoginAuthInput } from './dto/login-auth.input';
 
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    ) {}
 
 
+    async ValidateLogin(loginAuthInput:LoginAuthInput): Promise<string>{
+      
+      const { email, password } = loginAuthInput;
+      
+      const isUserMatch = await this.userService.validateUser(email, password);
+
+      if(!isUserMatch){
+        return `Invalid email or password`;
+      }
+
+      //generate token
+
+      return `Welcome ${email} :)`;
+
+    }
 }

@@ -54,22 +54,17 @@ export class UserService {
   }
 
 
-  async validateUser(email: string, password: string): Promise<user>
-  {
-    const userFound = await this.findByEmail(email);
-
-    if(!userFound){
-      throw new Error(`User with email ${email} not found`);
-    }
-
-
-    const isPasswordValid = await verify(userFound.password, password);
+  async validateUser(email: string, password: string): Promise<boolean>
+  {  
     
-    if(!isPasswordValid){
-      throw new Error(`Incorrect password`);
+    const userFound = await this.findByEmail(email);
+      
+    if(userFound){
+      return await verify(userFound.password, password);
     }
-  
-    return userFound;
+
+    return false;
+    
   }
 
    
